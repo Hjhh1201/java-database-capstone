@@ -1,6 +1,33 @@
 package com.project.back_end.models;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+
+@Entity
 public class Patient {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @NotNull
+    @Size(min = 3, max = 100)
+    private String name;
+
+    @Email
+    @NotNull
+    private String email;
+
+    @Size(min = 6)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String password;
+
+    @Pattern(regexp = "\\d{10}")
+    private String phone;
+
+    @Size(max = 255)
+    private String address;
+    
 // @Entity annotation:
 //    - Marks the class as a JPA entity, meaning it represents a table in the database.
 //    - Required for persistence frameworks (e.g., Hibernate) to map the class to a database table.
