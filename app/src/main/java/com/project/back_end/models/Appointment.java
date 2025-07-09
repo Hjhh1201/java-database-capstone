@@ -2,7 +2,10 @@ package com.project.back_end.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 public class Appointment {
@@ -21,6 +24,7 @@ public class Appointment {
     @Future(message = "Appointment time must be in the future")
     private LocalDateTime appointmentTime;
 
+    @NotNull
     private int status; // 0 = Scheduled, 1 = Completed
 
     @Transient
