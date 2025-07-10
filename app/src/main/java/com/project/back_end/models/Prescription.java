@@ -26,6 +26,8 @@ public class Prescription {
     @Size(min = 3, max = 100)
     private String medication;
 
+    @NotNull
+    private String dosage;
 
     @Size(max = 200)
     private String doctorNotes;
@@ -62,6 +64,14 @@ public class Prescription {
         this.medication = medication;
     }
 
+    public String getDosage() {
+        return dosage;
+    }
+
+    public void setDosage(String dosage) {
+        this.dosage = dosage;
+    }
+
     public String getDoctorNotes() {
         return doctorNotes;
     }
@@ -69,6 +79,15 @@ public class Prescription {
     public void setDoctorNotes(String doctorNotes) {
         this.doctorNotes = doctorNotes;
     }
+
+    public Prescription(String patientName, String medication, String dosage, String doctorNotes, Long appointmentId) {
+        this.patientName = patientName;
+        this.medication = medication;
+        this.dosage = dosage;
+        this.doctorNotes = doctorNotes;
+        this.appointmentId = appointmentId;
+    }
+
 
     // @Document annotation:
 //    - Marks the class as a MongoDB document (a collection in MongoDB).
