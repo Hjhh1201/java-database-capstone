@@ -102,3 +102,65 @@
   Call the renderFooter function to populate the footer in the page
 
 */
+
+
+/**
+ * Function to render the footer content into the page
+ * This section dynamically generates the footer content for the web page,
+ * including the hospital's logo, copyright,
+ * and various helpful navigation and legal links.
+ */
+function renderFooter() {
+  // 1. Select the footer element from the DOM
+  const footer = document.getElementById("footer");
+  if (!footer) return; // Exit if the footer container is not found
+
+  // 2. Set the inner HTML of the footer element to include the footer content
+  footer.innerHTML = `
+    <footer class="footer">
+      <!-- 3. Footer container to hold all content -->
+      <div class="footer-container">
+
+        <!-- 4. Hospital branding and copyright -->
+        <div class="footer-logo">
+          <img src="../assets/images/logo/logo.png" alt="Hospital CMS Logo" class="footer-logo-img" />
+          <p>© Copyright 2025. All Rights Reserved by Hospital CMS.</p>
+        </div>
+
+        <!-- 5. Link sections divided into three columns -->
+        <div class="footer-links">
+
+          <!-- 6. Company section -->
+          <div class="footer-column">
+            <h4>Company</h4>
+            <a href="#">About</a>
+            <a href="#">Careers</a>
+            <a href="#">Press</a>
+          </div>
+
+          <!-- 7. Support section -->
+          <div class="footer-column">
+            <h4>Support</h4>
+            <a href="#">Account</a>
+            <a href="#">Help Center</a>
+            <a href="#">Contact Us</a>
+          </div>
+
+          <!-- 8. Legals section -->
+          <div class="footer-column">
+            <h4>Legals</h4>
+            <a href="#">Terms & Conditions</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Licensing</a>
+          </div>
+
+        </div> <!-- End of footer-links -->
+
+      </div> <!-- End of footer-container -->
+    </footer>
+  `;
+}
+
+// 9. Call the renderFooter function to populate the footer in the page
+renderFooter();
+

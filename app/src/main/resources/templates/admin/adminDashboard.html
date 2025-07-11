@@ -107,3 +107,84 @@ with search, filter, and modal functionality.
 
  -->
 
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="icon" type="image/png" th:href="@{/assets/images/logo/logo.png}" />`
+    <link rel="stylesheet" th:href="@{/assets/css/adminDashboard.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+    <script th:src="@{/js/render.js}" defer></script>
+    <script th:src="@{/js/util.js}" defer></script>
+    <script th:src="@{/js/components/header.js}" defer></script>
+    <script th:src="@{/js/components/footer.js}" defer></script>
+</head>
+
+<body onload="renderContent()">
+    <div class="container">
+        <div class="wrapper">
+            <div id="header"></div>
+
+            <!-- Main Content Area -->
+            <main class="main-content">
+                <!-- Search and Filter Section -->
+                <div class="controls">
+                    <!-- Search Input -->
+                    <input
+                            type="text"
+                            id="searchBar"
+                            class="search-input"
+                            placeholder="Search by doctor name..."
+                            oninput="filterDoctors()"
+                    >
+
+                    <!-- Filter Dropdowns -->
+                    <div class="filter-group">
+                        <!-- Time Selection -->
+                        <select
+                                id="filterTime"
+                                class="filter-select"
+                                aria-label="Filter by time"
+                                onchange="filterDoctors()"
+                        >
+                            <option value="">All Times</option>
+                            <option value="AM">AM (Morning)</option>
+                            <option value="PM">PM (Afternoon/Evening)</option>
+                        </select>
+
+                        <!-- Specialty Selection -->
+                        <select
+                                id="specialtyFilter"
+                                class="filter-select"
+                                aria-label="Filter by specialty"
+                                onchange="filterDoctors()"
+                        >
+                            <option value="">All Specialties</option>
+                            <option value="cardiology">Cardiology</option>
+                            <option value="dentistry">Dentistry</option>
+                            <option value="neurology">Neurology</option>
+                            <option value="pediatrics">Pediatrics</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Dynamic Content Area -->
+                <div id="content" class="doctor-list">
+                    <!-- Doctor cards will be injected here by JavaScript -->
+                </div>
+            </main>
+
+            <!-- Dynamic Footer -->
+            <div id="footer"></div>
+        </div>
+    </div>
+
+    <div id="modal" class="modal">
+        <span id="closeModal" class="close">&times;</span>
+        <div id="modal-body"></div>
+    </div>
+
+    <script type="module" src="../js/services/adminDashboard.js" defer></script>
+    <script type="module" src="../js/components/doctorCard.js" defer></script>
+</body>
