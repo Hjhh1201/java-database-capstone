@@ -1,6 +1,8 @@
 package com.project.back_end.services;
 
-public class Service {
+import java.util.Map;
+
+
 // 1. **@Service Annotation**
 // The @Service annotation marks this class as a service component in Spring. This allows Spring to automatically detect it through component scanning
 // and manage its lifecycle, enabling it to be injected into controllers or other services using @Autowired or constructor injection.
@@ -62,5 +64,10 @@ public class Service {
 // - If no filters are provided, it retrieves all appointments for the patient.
 // This flexible method supports patient-specific querying and enhances user experience on the client side.
 
+
+public class Service {
+    public Map<String, Object> validateToken(String token, String admin) {
+        return null;
+    }
 
 }
