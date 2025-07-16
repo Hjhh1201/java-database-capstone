@@ -136,7 +136,7 @@ with search, filter, and modal functionality.
                             id="searchBar"
                             class="search-input"
                             placeholder="Search by doctor name..."
-                            oninput="filterDoctors()"
+
                     >
 
                     <!-- Filter Dropdowns -->
@@ -154,18 +154,25 @@ with search, filter, and modal functionality.
                         </select>
 
                         <!-- Specialty Selection -->
-                        <select
-                                id="specialtyFilter"
-                                class="filter-select"
-                                aria-label="Filter by specialty"
-                                onchange="filterDoctors()"
-                        >
-                            <option value="">All Specialties</option>
-                            <option value="cardiology">Cardiology</option>
-                            <option value="dentistry">Dentistry</option>
-                            <option value="neurology">Neurology</option>
-                            <option value="pediatrics">Pediatrics</option>
+                        <select class="filter-select" id="filterSpecialty">
+                            <option value="">Filter by Specialty</option>
+                            <option value="Cardiologist">Cardiologist</option>
+                            <option value="Dermatologist">Dermatologist</option>
+                            <option value="Neurologist">Neurologist</option>
+                            <option value="Pediatrician">Pediatrician</option>
+                            <option value="Orthopedic">Orthopedic</option>
+                            <option value="Gynecologist">Gynecologist</option>
+                            <option value="Psychiatrist">Psychiatrist</option>
+                            <option value="Dentist">Dentist</option>
+                            <option value="Ophthalmologist">Ophthalmologist</option>
+                            <option value="Ent">ENT Specialist</option>
+                            <option value="Urologist">Urologist</option>
+                            <option value="Oncologist">Oncologist</option>
+                            <option value="Gastroenterologist">Gastroenterologist</option>
+                            <option value="General">General Physician</option>
                         </select>
+                        <!-- Add Doctor Button -->
+                        <button id="addDocBtn" class="btn-primary">Add Doctor</button>
                     </div>
                 </div>
 
@@ -180,9 +187,32 @@ with search, filter, and modal functionality.
         </div>
     </div>
 
+    <!-- Modal -->
     <div id="modal" class="modal">
         <span id="closeModal" class="close">&times;</span>
-        <div id="modal-body"></div>
+        <div id="modal-body">
+            <!-- This area will be dynamically filled using JS -->
+            <form onsubmit="event.preventDefault(); adminAddDoctor();">
+                <h2>Add New Doctor</h2>
+
+                <input type="text" id="docName" placeholder="Doctor Name" required>
+                <input type="email" id="docEmail" placeholder="Email" required>
+                <input type="tel" id="docPhone" placeholder="Phone Number" required>
+                <input type="password" id="docPassword" placeholder="Password" required>
+                <input type="text" id="docSpecialty" placeholder="Specialty" required>
+
+                <fieldset>
+                    <legend>Available Times</legend>
+                    <label><input type="checkbox" class="availability-time" value="9AM"> 9AM</label>
+                    <label><input type="checkbox" class="availability-time" value="10AM"> 10AM</label>
+                    <label><input type="checkbox" class="availability-time" value="11AM"> 11AM</label>
+                    <label><input type="checkbox" class="availability-time" value="2PM"> 2PM</label>
+                    <label><input type="checkbox" class="availability-time" value="3PM"> 3PM</label>
+                </fieldset>
+
+                <button type="submit" class="btn-primary">Save Doctor</button>
+            </form>
+        </div>
     </div>
 
     <script type="module" src="../js/services/adminDashboard.js" defer></script>
