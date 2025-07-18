@@ -1,8 +1,63 @@
 package com.project.back_end.services;
 
+
+import com.project.back_end.models.Appointment;
+import com.project.back_end.models.Prescription;
+import com.project.back_end.repo.PrescriptionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service
 public class PrescriptionService {
-    
- // 1. **Add @Service Annotation**:
+
+
+    private final PrescriptionRepository prescriptionRepository;
+
+
+    @Autowired
+    public PrescriptionService(PrescriptionRepository prescriptionRepository) {
+        this.prescriptionRepository = prescriptionRepository;
+    }
+
+    public ResponseEntity<Map<String, String>> savePrescription(Prescription prescription){
+        try{
+
+
+            Map<String, String> response = new HashMap<>();
+            prescriptionRepository.save(prescription);
+            response.put("message", "Prescription saved successfully");
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to save prescription: " + e.getMessage()));
+        }
+
+
+    }
+
+    public ResponseEntity<Map<String, Object>> getPrescription(Long appointmentId){
+        try{
+            List<Prescription> prescriptions = prescriptionRepository.findByAppointmentId(appointmentId);
+            Map<String, Object> response = new HashMap<>();
+            response.put("prescription", prescriptions);
+            return ResponseEntity.ok(response);
+
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to save prescription: " + e.getMessage()));
+        }
+    }
+
+    // 1. **Add @Service Annotation**:
 //    - The `@Service` annotation marks this class as a Spring service component, allowing Spring's container to manage it.
 //    - This class contains the business logic related to managing prescriptions in the healthcare system.
 //    - Instruction: Ensure the `@Service` annotation is applied to mark this class as a Spring-managed service.

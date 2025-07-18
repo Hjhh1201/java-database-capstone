@@ -1,12 +1,145 @@
 package com.project.back_end.services;
 
-public class AppointmentService {
-// 1. **Add @Service Annotation**:
-//    - To indicate that this class is a service layer class for handling business logic.
-//    - The `@Service` annotation should be added before the class declaration to mark it as a Spring service component.
-//    - Instruction: Add `@Service` above the class definition.
+import com.project.back_end.models.Appointment;
+import com.project.back_end.models.Doctor;
+import com.project.back_end.models.Patient;
+import com.project.back_end.repo.AppointmentRepository;
+import com.project.back_end.repo.DoctorRepository;
+import com.project.back_end.repo.PatientRepository;
+import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
-// 2. **Constructor Injection for Dependencies**:
+import javax.print.Doc;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Service
+public class AppointmentService {
+
+    private AppointmentRepository appointmentRepository;
+    private PatientRepository patientRepository;
+    private DoctorRepository doctorRepository;
+    private TokenService tokenService;
+    private com.project.back_end.services.Service service;
+
+
+    @Autowired
+    public AppointmentService(AppointmentRepository appointmentRepository, PatientRepository patientRepository, DoctorRepository doctorRepository,
+                              TokenService tokenService, com.project.back_end.services.Service service) {
+        this.appointmentRepository = appointmentRepository;
+        this.patientRepository = patientRepository;
+        this.doctorRepository = doctorRepository;
+        this.tokenService = tokenService;
+        this.service = service;
+    }
+
+    @Transactional
+    public int bookAppointment(Appointment appointment){
+        try {
+            appointmentRepository.save(appointment);
+            return 1;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+
+    @Transactional
+    public ResponseEntity<Map<String, String>> updateAppointment(Appointment appointment){
+        Map<String, String> response = new HashMap<>();
+
+        Optional<Appointment> a = appointmentRepository.findById(appointment.getId());
+
+        if(a.isEmpty()){
+            response.put("message", "Appointment not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
+        Appointment a1 = a.get();
+
+        int valid = service.validateAppointment(appointment);
+        if (valid == -1) {
+            response.put("message", "Invalid doctor.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } else if (valid == 0) {
+            response.put("message", "No Matching time is found.");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        }
+
+        appointmentRepository.save(appointment);
+        response.put("message", "Appointment updated successfully.");
+        return ResponseEntity.ok(response);
+    }
+
+
+    @Transactional
+    public ResponseEntity<Map<String, String>> cancelAppointment(long id, String token){
+        Map<String, String> response = new HashMap<>();
+
+        Optional<Appointment> optionalAppointment = appointmentRepository.findById(id);
+
+        if (!optionalAppointment.isPresent()) {
+            response.put("message", "Appointment not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
+        Appointment appointment = optionalAppointment.get();
+
+        String identifier = tokenService.extractIdentifier(token);
+
+        if(appointment.getPatient().getEmail().equals(identifier) || appointment.getDoctor().getEmail().equals(identifier)){
+            appointmentRepository.delete(appointment);
+            response.put("message", "Appointment canceled successfully.");
+            return ResponseEntity.ok(response);
+        }
+
+        response.put("message", "Unauthorized to cancel this appointment.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+
+
+    @Transactional
+    public Map<String, Object> getAppointment(String pname, LocalDate date, String token){
+        Map<String, Object> result = new HashMap<>();
+        String identifier = tokenService.extractIdentifier(token);
+
+        Doctor doctor = doctorRepository.findByEmail(identifier);
+
+        if(doctor==null){
+            result.put("error", "Doctor not found");
+            return result;
+        }
+
+
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atTime(23, 59);
+        List<Appointment> appointments = appointmentRepository.findByDoctorId(doctor.getId());
+
+        if (pname != null && !pname.trim().isEmpty()) {
+            appointments = appointments.stream()
+                    .filter(app -> {
+                        Optional<Patient> patient = patientRepository.findById(app.getPatient().getId());
+                        return patient.isPresent() &&
+                                patient.get().getName().toLowerCase().contains(pname.toLowerCase());
+                    })
+                    .collect(Collectors.toList());
+        }
+
+        result.put("appointments", appointments);
+        return result;
+    }
+
+    // 2. **Constructor Injection for Dependencies**:
 //    - The `AppointmentService` class requires several dependencies like `AppointmentRepository`, `Service`, `TokenService`, `PatientRepository`, and `DoctorRepository`.
 //    - These dependencies should be injected through the constructor.
 //    - Instruction: Ensure constructor injection is used for proper dependency management in Spring.

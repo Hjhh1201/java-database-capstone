@@ -2,6 +2,7 @@ package com.project.back_end.repo;
 
 import com.project.back_end.models.Appointment;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.Future;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -21,6 +22,13 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findByDoctorIdAndAppointmentTimeBetween( @Param("doctorId") Long doctorId,
                                                               @Param("start") LocalDateTime start,
                                                               @Param("end") LocalDateTime end);
+
+
+
+    @Query("SELECT a FROM Appointment a WHERE a.patient.id = :patientId AND a.status = :status")
+    List<Appointment> findByPatientIdAndStatus(@Param("patientId") Long patientId,
+                                               @Param("status") int status);
+
    // 1. Extend JpaRepository:
 //    - The repository extends JpaRepository<Appointment, Long>, which gives it basic CRUD functionality.
 //    - The methods such as save, delete, update, and find are inherited without the need for explicit implementation.
@@ -73,6 +81,9 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 //      - Parameters: Long patientId
 
     List<Appointment> findByPatientId(Long patientId);
+
+    List<Appointment> findByDoctorId(Long doctorId);
+
 
 //    - **findByPatient_IdAndStatusOrderByAppointmentTimeAsc**:
 //      - This method retrieves all appointments for a specific patient with a given status, ordered by the appointment time.

@@ -1,7 +1,184 @@
 package com.project.back_end.services;
 
+
+import com.project.back_end.DTO.AppointmentDTO;
+import com.project.back_end.models.Appointment;
+import com.project.back_end.models.Patient;
+import com.project.back_end.repo.AppointmentRepository;
+import com.project.back_end.repo.PatientRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Service
 public class PatientService {
-// 1. **Add @Service Annotation**:
+
+
+    private PatientRepository patientRepository;
+    private AppointmentRepository appointmentRepository;
+    private TokenService tokenService;
+
+
+    @Autowired
+    public PatientService(PatientRepository patientRepository, AppointmentRepository appointmentRepository, TokenService tokenService) {
+        this.patientRepository = patientRepository;
+        this.appointmentRepository = appointmentRepository;
+        this.tokenService = tokenService;
+    }
+
+    public int createPatient(Patient patient){
+        try{
+            if(patientRepository.findByEmail(patient.getEmail())!=null){
+                return 0;
+            }
+            patientRepository.save(patient);
+            return 1;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+
+    public ResponseEntity<Map<String, Object>> getPatientAppointment(Long id, String token){
+        Map<String, Object> response = new HashMap<>();
+
+        Optional<Patient> optionalPatient = patientRepository.findById(id);
+        if(optionalPatient.isEmpty()){
+            response.put("error", "not valid patient id");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        Patient patient = optionalPatient.get();
+
+        if(!patient.getEmail().equals(tokenService.extractIdentifier(token))){
+            response.put("error", "Unauthorized access");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        List<AppointmentDTO> appointmentDTOS = appointmentRepository.findByPatientId(id)
+                .stream()
+                .map(this::convertToDTO)
+                .toList();
+
+        response.put("appointments", appointmentDTOS);
+        return ResponseEntity.ok(response);
+    }
+
+    ResponseEntity<Map<String, Object>> filterByCondition(String condition, Long id){
+        Map<String, Object> response = new HashMap<>();
+
+        List<Appointment> appointments;
+
+        if ("past".equalsIgnoreCase(condition)) {
+            appointments = appointmentRepository.findByPatientIdAndStatus(id, 1);
+        } else if ("future".equalsIgnoreCase(condition)) {
+            appointments = appointmentRepository.findByPatientIdAndStatus(id, 0);
+        } else {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "error", "Invalid condition. Use 'past' or 'future'",
+                    "valid_conditions", List.of("past", "future")
+            ));
+        }
+
+        List<AppointmentDTO> appointmentDTOS = appointments.stream()
+                .map(this::convertToDTO)
+                .toList();
+
+        response.put("appointments", appointmentDTOS);
+        return ResponseEntity.ok(response);
+    }
+
+
+    public ResponseEntity<Map<String, Object>> filterByDoctor(String name, Long patientId){
+        Map<String, Object> response = new HashMap<>();
+        List<Appointment> appointments = appointmentRepository.filterByDoctorNameAndPatientId(name, patientId);
+
+        List<AppointmentDTO> appointmentDTOS = appointments.stream()
+                .map(this::convertToDTO)
+                .toList();
+
+        response.put("appointments", appointmentDTOS);
+        return ResponseEntity.ok(response);
+    }
+
+
+    public ResponseEntity<Map<String, Object>> filterByDoctorAndCondition(String condition, String name, long patientId){
+        Map<String, Object> response = new HashMap<>();
+        List<Appointment> appointments;
+
+        if ("past".equalsIgnoreCase(condition)) {
+            appointments = appointmentRepository.filterByDoctorNameAndPatientIdAndStatus(name,patientId,1);
+        } else if ("future".equalsIgnoreCase(condition)) {
+            appointments = appointmentRepository.filterByDoctorNameAndPatientIdAndStatus(name,patientId,0);
+        } else {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "error", "Invalid condition. Use 'past' or 'future'",
+                    "valid_conditions", List.of("past", "future")
+            ));
+        }
+
+
+        List<AppointmentDTO> appointmentDTOS = appointments.stream()
+                .map(this::convertToDTO)
+                .toList();
+
+        response.put("appointments",appointmentDTOS);
+        return ResponseEntity.ok(response);
+
+
+    }
+
+
+    public ResponseEntity<Map<String, Object>> getPatientDetails(String token){
+
+        try{
+            Patient patient = patientRepository.findByEmail(tokenService.extractIdentifier(token));
+
+            if (patient == null) {
+                return ResponseEntity.status(404).body(Map.of("error", "Patient not found"));
+            }
+
+            return ResponseEntity.ok(Map.of(
+                    "id", patient.getId(),
+                    "name", patient.getName(),
+                    "email", patient.getEmail(),
+                    "phone", patient.getPhone(),
+                    "address", patient.getAddress()
+            ));
+
+
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+        }
+
+    }
+
+
+    private AppointmentDTO convertToDTO(Appointment appointment) {
+        AppointmentDTO dto = new AppointmentDTO(
+                appointment.getId(),
+                appointment.getDoctor().getId(),
+                appointment.getDoctor().getName(),
+                appointment.getPatient().getId(),
+                appointment.getPatient().getName(),
+                appointment.getPatient().getEmail(),
+                appointment.getPatient().getPhone(),
+                appointment.getPatient().getAddress(),
+                appointment.getAppointmentTime(),
+                appointment.getStatus()
+                );
+
+        return dto;
+    }
+
+    // 1. **Add @Service Annotation**:
 //    - The `@Service` annotation is used to mark this class as a Spring service component. 
 //    - It will be managed by Spring's container and used for business logic related to patients and appointments.
 //    - Instruction: Ensure that the `@Service` annotation is applied above the class declaration.

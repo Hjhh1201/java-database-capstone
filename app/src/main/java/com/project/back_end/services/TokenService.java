@@ -1,7 +1,17 @@
 package com.project.back_end.services;
 
+import com.project.back_end.repo.AdminRepository;
+import com.project.back_end.repo.DoctorRepository;
+import com.project.back_end.repo.PatientRepository;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
+import java.util.Date;
 import java.util.Map;
 
 
@@ -43,6 +53,66 @@ import java.util.Map;
 // - The method gracefully handles any errors by returning false if the token is invalid or an exception occurs.
 // This ensures secure access control based on the user's role and their existence in the system.
 
+@Component
 public class TokenService{
-    
+
+    private final AdminRepository adminRepository;
+    private final DoctorRepository doctorRepository;
+    private final PatientRepository patientRepository;
+
+
+    @Value("${jwt.expiration.days}")
+    private int jwtExpirationDays;
+
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+
+
+
+    @Autowired
+    public TokenService(AdminRepository adminRepository, DoctorRepository doctorRepository, PatientRepository patientRepository) {
+        this.adminRepository = adminRepository;
+        this.doctorRepository = doctorRepository;
+        this.patientRepository = patientRepository;
+    }
+
+
+    public String generateToken(String identifier){
+
+        return Jwts.builder()
+                .setSubject(identifier)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationDays * 24 * 60 * 60 * 1000L))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String extractIdentifier(String token){
+        return Jwts.parser()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+    }
+
+    public boolean validateToken(String token, String user){
+        try{
+            String identifier = extractIdentifier(token);
+
+            return switch (user.toLowerCase()) {
+                case "admin" -> adminRepository.findByUsername(identifier) != null;
+                case "doctor" -> doctorRepository.findByEmail(identifier) != null;
+                case "patient" -> patientRepository.findByEmail(identifier) != null;
+                default -> false;
+            };
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private SecretKey getSigningKey() {
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
+    }
+
 }
