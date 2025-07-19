@@ -1,9 +1,114 @@
 package com.project.back_end.controllers;
 
 
+import com.project.back_end.models.Appointment;
+import com.project.back_end.services.AppointmentService;
+import com.project.back_end.services.Service;
+import com.project.back_end.services.TokenService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
+
+@RestController
+@RequestMapping("${api.path}" + "appointments")
 public class AppointmentController {
 
-// 1. Set Up the Controller Class:
+    private final AppointmentService appointmentService;
+
+    private final Service service;
+
+    @Autowired
+    public AppointmentController(AppointmentService appointmentService, TokenService tokenService, Service service) {
+        this.appointmentService = appointmentService;
+        this.service = service;
+    }
+
+
+    @GetMapping("/{date}/{patientName}/{token}")
+    public ResponseEntity<Map<String, Object>> getAppointment(@PathVariable LocalDate date,
+                                                              @PathVariable String patientName,
+                                                              @PathVariable String token){
+
+
+
+        Map<String, Object> response = new HashMap<>();
+
+        if(!service.validateToken(token, "doctor")){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        return ResponseEntity.ok(appointmentService.getAppointment(patientName, date, token));
+    }
+
+
+    @PostMapping("/{token}")
+    public ResponseEntity<Map<String, String>> bookAppointment(@RequestBody Appointment appointment,
+                                                                @PathVariable String token){
+
+
+        Map<String, String> response = new HashMap<>();
+        if(!service.validateToken(token,"patient")){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        int valid = service.validateAppointment(appointment);
+        if(valid==1){
+            appointmentService.bookAppointment(appointment);
+            response.put("message","Created successfully");
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        }
+
+        response.put("message","Invalid appointment ");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+
+    @PutMapping("/{token}")
+    public ResponseEntity<?> updateAppointment(@PathVariable String token, @RequestBody Appointment appointment){
+
+        if(!service.validateToken(token, "patient")){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error","Unauthorized"));
+        }
+
+        try {
+            return appointmentService.updateAppointment(appointment);
+
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "error", "Failed to update appointment",
+                    "details", e.getMessage()
+            ));
+        }
+    }
+
+
+    @DeleteMapping("/{id}/{token}")
+    public ResponseEntity<?> cancelAppointment(
+            @PathVariable Long id,
+            @PathVariable String token
+    ){
+        if(!service.validateToken(token, "patient")){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error","Unauthorized"));
+        }
+
+        try {
+            return appointmentService.cancelAppointment(id, token);
+
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "error", "Failed to delete appointment",
+                    "details", e.getMessage()
+            ));
+        }
+    }
+
+    // 1. Set Up the Controller Class:
 //    - Annotate the class with `@RestController` to define it as a REST API controller.
 //    - Use `@RequestMapping("/appointments")` to set a base path for all appointment-related endpoints.
 //    - This centralizes all routes that deal with booking, updating, retrieving, and canceling appointments.

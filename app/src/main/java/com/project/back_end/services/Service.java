@@ -101,14 +101,9 @@ public class Service {
         this.patientService = patientService;
     }
 
-    public ResponseEntity<Map<String, String>> validateToken(String token, String user) {
-        Map<String, String> response = new HashMap<>();
-        if(tokenService.validateToken(token,user)){
-            return ResponseEntity.ok(response);
-        }else{
-            response.put("error", "Invalid or expired token");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-        }
+    public boolean validateToken(String token, String user) {
+
+        return tokenService.validateToken(token, user);
 
 
     }
@@ -182,7 +177,7 @@ public class Service {
             response.put("error", "patient not valid");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
-        
+
         return patientService.filterByDoctorAndCondition(condition,name,patient.getId());
     }
 

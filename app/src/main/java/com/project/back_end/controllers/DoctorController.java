@@ -1,9 +1,218 @@
 package com.project.back_end.controllers;
 
 
+import com.project.back_end.DTO.Login;
+import com.project.back_end.models.Doctor;
+import com.project.back_end.services.DoctorService;
+import com.project.back_end.services.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+
+
+@RestController
+@RequestMapping("${api.path}" + "doctor")
 public class DoctorController {
 
-// 1. Set Up the Controller Class:
+    private final DoctorService doctorService;
+    private final Service service;
+
+
+    @Autowired
+    public DoctorController(DoctorService doctorService, Service service) {
+        this.doctorService = doctorService;
+        this.service = service;
+    }
+
+
+    @GetMapping("/availability/{user}/{doctorId}/{date}/{token}")
+    public ResponseEntity<?> getDoctorAvailability(
+            @PathVariable String user,
+            @PathVariable Long doctorId,
+            @PathVariable LocalDate date,
+            @PathVariable String token
+    ){
+        if(!service.validateToken(token,user)){
+            return ResponseEntity.status(401).body(Map.of(
+                    "error", "Unauthorized",
+                    "message", "Invalid token for role: " + user
+            ));
+        }
+
+
+        try{
+            List<String> availability = doctorService.getDoctorAvailability(doctorId, date);
+            return ResponseEntity.ok(Map.of(
+                    "doctorId", doctorId,
+                    "date", date.toString(),
+                    "availableSlots", availability
+            ));
+
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "error", "Failed to fetch availability",
+                    "details", e.getMessage()
+            ));
+        }
+    }
+
+
+    @GetMapping
+    public ResponseEntity<?> getDoctor(){
+        List<Doctor> doctors = doctorService.getDoctors();
+
+        return ResponseEntity.ok(Map.of("doctors",doctors));
+    }
+
+
+    @PostMapping("/{token}")
+    public ResponseEntity<?> saveDoctor(
+            @RequestBody Doctor doctor,
+            @PathVariable String token
+    ){
+        if(!service.validateToken(token,"admin")){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error","unauthorized"));
+        }
+
+        try{
+            int result = doctorService.saveDoctor(doctor);
+
+            return switch (result) {
+                case 1 -> ResponseEntity.status(201).body(Map.of(
+                        "message", "Doctor added successfully",
+                        "doctorId", doctor.getId()
+                ));
+                case -1 -> ResponseEntity.status(409).body(Map.of(
+                        "error", "Doctor already exists"
+                ));
+                default -> ResponseEntity.internalServerError().body(Map.of(
+                        "error", "Failed to add doctor"
+                ));
+            };
+
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "error", "Failed to fetch availability",
+                    "details", e.getMessage()
+            ));
+        }
+    }
+
+
+
+
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, String>> doctorLogin(@RequestBody Login login) {
+        return doctorService.validateDoctor(login);
+    }
+
+
+    @PutMapping("/{token}")
+    public ResponseEntity<?> updateDoctor(
+            @RequestBody Doctor doctor,
+            @PathVariable String token
+    ){
+
+        if(!service.validateToken(token,"admin")){
+            return ResponseEntity.status(401).body(Map.of(
+                    "error", "Unauthorized",
+                    "message", "Admin access required"
+            ));
+        }
+
+
+
+        try {
+            int result = doctorService.updateDoctor(doctor);
+            return switch (result) {
+                case 1 -> ResponseEntity.ok(Map.of(
+                        "message", "Doctor updated successfully",
+                        "doctorId", doctor.getId()
+                ));
+                case -1 -> ResponseEntity.status(404).body(Map.of(
+                        "error", "Doctor not found"
+                ));
+                default -> ResponseEntity.internalServerError().body(Map.of(
+                        "error", "Failed to update doctor"
+                ));
+            };
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "error", "Internal server error",
+                    "details", e.getMessage()
+            ));
+        }
+    }
+
+
+
+    @DeleteMapping("/{id}/{token}")
+    public ResponseEntity<?> deleteDoctor(
+            @PathVariable Long id,
+            @PathVariable String token
+    ){
+
+        if(!service.validateToken(token,"admin")){
+            return ResponseEntity.status(401).body(Map.of(
+                    "error", "Unauthorized",
+                    "message", "Admin access required"
+            ));
+        }
+
+        try{
+            int result =doctorService.deleteDoctor(id);
+
+            return switch (result) {
+                case 1 -> ResponseEntity.ok(Map.of(
+                        "message", "Doctor deleted successfully",
+                        "doctorId", id
+                ));
+                case -1 -> ResponseEntity.status(404).body(Map.of(
+                        "error", "Doctor not found"
+                ));
+                default -> ResponseEntity.internalServerError().body(Map.of(
+                        "error", "Failed to delete doctor"
+                ));
+            };
+
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "error", "Internal server error",
+                    "details", e.getMessage()
+            ));
+        }
+    }
+
+
+    @GetMapping("/filter/{name}/{time}/{speciality}")
+    public ResponseEntity<?> filterDoctor(
+            @PathVariable String name,
+            @PathVariable String time,
+            @PathVariable String speciality
+    ){
+
+        try {
+            Map<String, Object> result = doctorService.filterDoctorsByNameSpecilityandTime(
+                    name, speciality, time);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "error", "Failed to filter doctors",
+                    "details", e.getMessage()
+            ));
+        }
+    }
+
+
+
+
+
+    // 1. Set Up the Controller Class:
 //    - Annotate the class with `@RestController` to define it as a REST controller that serves JSON responses.
 //    - Use `@RequestMapping("${api.path}doctor")` to prefix all endpoints with a configurable API path followed by "doctor".
 //    - This class manages doctor-related functionalities such as registration, login, updates, and availability.

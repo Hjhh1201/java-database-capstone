@@ -33,9 +33,9 @@ public class DashboardController {
 
     @GetMapping("/adminDashboard/{token}")
     public String adminDashboard(@PathVariable String token) {
-        ResponseEntity<Map<String, String>> result = service.validateToken(token, "admin");
 
-        if(result.getStatusCode() == HttpStatus.UNAUTHORIZED){
+
+        if(!service.validateToken(token, "admin")){
             return "redirect:http://localhost:8080";
         }
 
@@ -53,9 +53,9 @@ public class DashboardController {
     @GetMapping("/doctorDashboard/{token}")
     public String doctorDashboard(@PathVariable("token") String token) {
 
-        ResponseEntity<Map<String, String>> result = service.validateToken(token, "doctor");
 
-        if(result.getStatusCode() == HttpStatus.UNAUTHORIZED){
+
+        if(!service.validateToken(token, "doctor")){
             return "redirect:http://localhost:8080";
         }
 

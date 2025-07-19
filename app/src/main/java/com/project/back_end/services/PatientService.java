@@ -35,8 +35,8 @@ public class PatientService {
 
     public int createPatient(Patient patient){
         try{
-            if(patientRepository.findByEmail(patient.getEmail())!=null){
-                return 0;
+            if(patientRepository.findByEmailOrPhone(patient.getEmail(), patient.getPhone())!=null){
+                return -1;
             }
             patientRepository.save(patient);
             return 1;
@@ -115,7 +115,7 @@ public class PatientService {
 
         if ("past".equalsIgnoreCase(condition)) {
             appointments = appointmentRepository.filterByDoctorNameAndPatientIdAndStatus(name,patientId,1);
-        } else if ("future".equalsIgnoreCase(condition)) {
+        } else if ("future".equalsIgnoreCase(condition) || "upcoming".equalsIgnoreCase(condition)) {
             appointments = appointmentRepository.filterByDoctorNameAndPatientIdAndStatus(name,patientId,0);
         } else {
             return ResponseEntity.badRequest().body(Map.of(

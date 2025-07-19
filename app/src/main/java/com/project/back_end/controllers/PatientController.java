@@ -1,8 +1,98 @@
 package com.project.back_end.controllers;
 
+
+import com.project.back_end.DTO.Login;
+import com.project.back_end.models.Patient;
+import com.project.back_end.services.PatientService;
+import com.project.back_end.services.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
+
+
+@RestController
+@RequestMapping("${api.path}" + "patient")
 public class PatientController {
 
-// 1. Set Up the Controller Class:
+
+    private final PatientService patientService;
+    private final Service service;
+
+
+    @Autowired
+    public PatientController(PatientService patientService, Service service) {
+        this.patientService = patientService;
+        this.service = service;
+    }
+
+
+    @GetMapping("/{token}")
+    public ResponseEntity<?> getPatient(@PathVariable String token){
+        if(!service.validateToken(token,"patient")){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "unauthorized"));
+        }
+
+        return patientService.getPatientDetails(token);
+    }
+
+
+    @PostMapping()
+    public ResponseEntity<?> createPatient(@RequestBody Patient patient){
+        int result = patientService.createPatient(patient);
+
+        return switch (result) {
+            case 1 -> ResponseEntity.status(201).body(Map.of(
+                    "message", "Patient added successfully",
+                    "Id", patient.getId()
+            ));
+            case -1 -> ResponseEntity.status(409).body(Map.of(
+                    "error", "Patient already exists"
+            ));
+            default -> ResponseEntity.internalServerError().body(Map.of(
+                    "error", "Failed to add patient"
+            ));
+        };
+
+    }
+
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(Login login){
+        return service.validatePatientLogin(login);
+    }
+
+
+    @GetMapping("/{id}/{token}")
+    public ResponseEntity<?> getPatientAppointment(@PathVariable Long id, @PathVariable String token){
+        Map<String, String> response = new HashMap<>();
+        if(!service.validateToken(token,"patient")){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        return patientService.getPatientAppointment(id, token);
+    }
+
+
+
+    @GetMapping("/filter/{condition}/{name}/{token}")
+    public ResponseEntity<?> filterPatientAppointment(
+        @PathVariable String condition,
+        @PathVariable String name,
+        @PathVariable String token
+    ){
+        Map<String, String> response = new HashMap<>();
+        if(!service.validateToken(token,"patient")){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        return service.filterPatient(condition, name, token);
+    }
+
+    // 1. Set Up the Controller Class:
 //    - Annotate the class with `@RestController` to define it as a REST API controller for patient-related operations.
 //    - Use `@RequestMapping("/patient")` to prefix all endpoints with `/patient`, grouping all patient functionalities under a common route.
 
