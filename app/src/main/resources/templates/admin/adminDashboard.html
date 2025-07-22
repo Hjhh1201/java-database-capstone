@@ -108,11 +108,11 @@ with search, filter, and modal functionality.
  -->
 
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Admin Dashboard</title>
-    <link rel="icon" type="image/png" th:href="@{/assets/images/logo/logo.png}" />`
+    <link rel="icon" type="image/png" th:href="@{/assets/images/logo/logo.png}" />
     <link rel="stylesheet" th:href="@{/assets/css/adminDashboard.css}">
     <link rel="stylesheet" th:href="@{/assets/css/style.css}">
     <script th:src="@{/js/render.js}" defer></script>
@@ -126,95 +126,51 @@ with search, filter, and modal functionality.
         <div class="wrapper">
             <div id="header"></div>
 
-            <!-- Main Content Area -->
             <main class="main-content">
-                <!-- Search and Filter Section -->
-                <div class="controls">
-                    <!-- Search Input -->
-                    <input
-                            type="text"
-                            id="searchBar"
-                            class="search-input"
-                            placeholder="Search by doctor name..."
-
-                    >
-
-                    <!-- Filter Dropdowns -->
-                    <div class="filter-group">
-                        <!-- Time Selection -->
-                        <select
-                                id="filterTime"
-                                class="filter-select"
-                                aria-label="Filter by time"
-                                onchange="filterDoctors()"
-                        >
-                            <option value="">All Times</option>
-                            <option value="AM">AM (Morning)</option>
-                            <option value="PM">PM (Afternoon/Evening)</option>
-                        </select>
-
-                        <!-- Specialty Selection -->
-                        <select class="filter-select" id="filterSpecialty">
-                            <option value="">Filter by Specialty</option>
-                            <option value="Cardiologist">Cardiologist</option>
-                            <option value="Dermatologist">Dermatologist</option>
-                            <option value="Neurologist">Neurologist</option>
-                            <option value="Pediatrician">Pediatrician</option>
-                            <option value="Orthopedic">Orthopedic</option>
-                            <option value="Gynecologist">Gynecologist</option>
-                            <option value="Psychiatrist">Psychiatrist</option>
-                            <option value="Dentist">Dentist</option>
-                            <option value="Ophthalmologist">Ophthalmologist</option>
-                            <option value="Ent">ENT Specialist</option>
-                            <option value="Urologist">Urologist</option>
-                            <option value="Oncologist">Oncologist</option>
-                            <option value="Gastroenterologist">Gastroenterologist</option>
-                            <option value="General">General Physician</option>
-                        </select>
-                        <!-- Add Doctor Button -->
-                        <button id="addDocBtn" class="btn-primary">Add Doctor</button>
-                    </div>
+                <input type="text" id="searchBar" placeholder="search by doctor name" />
+                <div class="filter-wrapper">
+                    <select class="filter-select" id="filterTime">
+                        <option value="">Sort by Time</option>
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                    </select>
+                    <select class="filter-select" id="filterSpecialty">
+                        <option value="">Filter by Specialty</option>
+                        <option value="Cardiologist">Cardiologist</option>
+                        <option value="Dermatologist">Dermatologist</option>
+                        <option value="Neurologist">Neurologist</option>
+                        <option value="Pediatrician">Pediatrician</option>
+                        <option value="Orthopedic">Orthopedic</option>
+                        <option value="Gynecologist">Gynecologist</option>
+                        <option value="Psychiatrist">Psychiatrist</option>
+                        <option value="Dentist">Dentist</option>
+                        <option value="Ophthalmologist">Ophthalmologist</option>
+                        <option value="Ent">ENT Specialist</option>
+                        <option value="Urologist">Urologist</option>
+                        <option value="Oncologist">Oncologist</option>
+                        <option value="Gastroenterologist">Gastroenterologist</option>
+                        <option value="General">General Physician</option>
+                    </select>
                 </div>
 
-                <!-- Dynamic Content Area -->
-                <div id="content" class="doctor-list">
-                    <!-- Doctor cards will be injected here by JavaScript -->
-                </div>
+                <div id="content"></div>
             </main>
 
-            <!-- Dynamic Footer -->
             <div id="footer"></div>
         </div>
+
     </div>
 
-    <!-- Modal -->
     <div id="modal" class="modal">
-        <span id="closeModal" class="close">&times;</span>
-        <div id="modal-body">
-            <!-- This area will be dynamically filled using JS -->
-            <form onsubmit="event.preventDefault(); adminAddDoctor();">
-                <h2>Add New Doctor</h2>
-
-                <input type="text" id="docName" placeholder="Doctor Name" required>
-                <input type="email" id="docEmail" placeholder="Email" required>
-                <input type="tel" id="docPhone" placeholder="Phone Number" required>
-                <input type="password" id="docPassword" placeholder="Password" required>
-                <input type="text" id="docSpecialty" placeholder="Specialty" required>
-
-                <fieldset>
-                    <legend>Available Times</legend>
-                    <label><input type="checkbox" class="availability-time" value="9AM"> 9AM</label>
-                    <label><input type="checkbox" class="availability-time" value="10AM"> 10AM</label>
-                    <label><input type="checkbox" class="availability-time" value="11AM"> 11AM</label>
-                    <label><input type="checkbox" class="availability-time" value="2PM"> 2PM</label>
-                    <label><input type="checkbox" class="availability-time" value="3PM"> 3PM</label>
-                </fieldset>
-
-                <button type="submit" class="btn-primary">Save Doctor</button>
-            </form>
+        <div class="modal-content">
+            <span id="closeModal" class="close"></span>
+            <div id="modal-body"></div>
         </div>
+
     </div>
 
-    <script type="module" src="../js/services/adminDashboard.js" defer></script>
-    <script type="module" src="../js/components/doctorCard.js" defer></script>
+    <script type="module" th:src="@{/js/adminDashboard.js}" defer></script>
+    <script type="module" th:src="@{/js/components/doctorCard.js}" defer></script>
+
+
 </body>

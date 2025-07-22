@@ -140,41 +140,29 @@ This file defines the Doctor Dashboard interface, allowing doctors to view and m
         <!-- Dynamic Header -->
         <div id="header"></div>
 
-        <!-- Main Dashboard Content -->
-        <div class="main-content">
-
-            <!-- Search Bar -->
-            <input
-                    type="text"
-                    id="searchBar"
-                    class="searchBar"
-                    placeholder="Search Bar for custom output"
-
-            />
-
-            <!-- Filter Section -->
+        <main class="main-content">
+            <input type="text" id="searchBar" class="searchBar" placeholder="Search Bar for custom output" />
             <div class="filters">
-                <button id="todayButton" class="button">Today’s Appointments</button>
-                <input type="date" id="datePicker" class="datePicker" aria-label="Select date" />
+                <button id="todayButton">Today’s Appointments</button>
+                <input type="date" id="datePicker" />
             </div>
 
-            <!-- Patient Records Table -->
-            <table id="patientTable" class="patient-table">
+            <table id="patientTable">
                 <thead>
                 <tr>
                     <th>Patient ID</th>
                     <th>Name</th>
-                    <th>Phone No.</th>
+                    <th>Phone</th>
                     <th>Email</th>
                     <th>Prescription</th>
                 </tr>
                 </thead>
                 <tbody id="patientTableBody">
-                <!-- Dynamic content will be injected here via JS -->
+                <!-- Rows will be dynamically added here by JS -->
                 </tbody>
             </table>
 
-        </div>
+        </main>
 
         <!-- Dynamic Footer -->
         <div id="footer"></div>
