@@ -83,7 +83,7 @@ public class TokenService{
                 .setSubject(identifier)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationDays * 24 * 60 * 60 * 1000L))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .signWith(getSigningKey())
                 .compact();
     }
 

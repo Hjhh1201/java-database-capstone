@@ -71,41 +71,43 @@
     If saving fails, show an error message
 */
 
-
-// Import modules
 import { openModal } from '../components/modals.js';
 import { getDoctors, filterDoctors, saveDoctor } from './services/doctorServices.js';
 import { createDoctorCard } from './components/doctorCard.js';
 
-// 📌 Add Doctor Button → Open Modal
-document.getElementById('addDocBtn')?.addEventListener('click', () => {
+
+document.getElementById('addDocBtn').addEventListener('click', () => {
   openModal('addDoctor');
 });
 
-// 📌 Load doctor cards when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   loadDoctorCards();
+
+
+  document.getElementById("searchBar").addEventListener("input", filterDoctorsOnChange);
+  document.getElementById("filterTime").addEventListener("change", filterDoctorsOnChange);
+  document.getElementById("filterSpecialty").addEventListener("change", filterDoctorsOnChange);
 });
 
-// 📌 Fetch and display all doctors
+
 async function loadDoctorCards() {
-  try {
+
+     const contentDiv = document.getElementById("content");
+     contentDiv.innerHTML = "";
+
     const doctors = await getDoctors();
-    renderDoctorCards(doctors);
-  } catch (error) {
-    console.error('Failed to load doctors:', error);
-  }
+
+    doctors.forEach(doctor => {
+        const card = createDoctorCard(doctor);
+        contentDiv.appendChild(card);
+      });
 }
 
-// 📌 Render doctors into the content area
-function renderDoctorCards(doctors) {
-  const contentDiv = document.getElementById('content');
-  contentDiv.innerHTML = '';
 
-  if (!doctors || doctors.length === 0) {
-    contentDiv.innerHTML = '<p>No doctors found.</p>';
-    return;
-  }
+
+export function renderDoctorCards(doctors) {
+  const contentDiv = document.getElementById("content");
+  contentDiv.innerHTML = "";
 
   doctors.forEach(doctor => {
     const card = createDoctorCard(doctor);
@@ -113,71 +115,70 @@ function renderDoctorCards(doctors) {
   });
 }
 
-// 📌 Filter event listeners
-document.getElementById('searchBar')?.addEventListener('input', filterDoctorsOnChange);
-document.getElementById('filterTime')?.addEventListener('change', filterDoctorsOnChange);
-document.getElementById('filterSpecialty')?.addEventListener('change', filterDoctorsOnChange);
 
-// 📌 Handle filtering logic
 async function filterDoctorsOnChange() {
-  const name = document.getElementById('searchBar')?.value.trim() || '';
-  const time = document.getElementById('filterTime')?.value.trim() || '';
-  const specialty = document.getElementById('filterSpecialty')?.value.trim() || '';
+  const name = document.getElementById("searchBar").value.trim();
+  const time = document.getElementById("filterTime").value;
+  const specialty = document.getElementById("filterSpecialty").value;
 
-  try {
-    const { doctors } = await filterDoctors(name || null, time || null, specialty || null);
+  const doctors = await filterDoctors(name, time, specialty);
 
-    if (doctors.length > 0) {
-      renderDoctorCards(doctors);
-    } else {
-      const contentDiv = document.getElementById('content');
-      contentDiv.innerHTML = '<p>No doctors found with the given filters.</p>';
-    }
-  } catch (error) {
-    console.error('Error filtering doctors:', error);
-    alert('Failed to filter doctors. Please try again.');
+  const contentDiv = document.getElementById("content");
+  contentDiv.innerHTML = "";
+
+  if (doctors.length === 0) {
+    contentDiv.innerHTML = "<p>No doctors found.</p>";
+  } else {
+    renderDoctorCards(doctors);
   }
 }
 
-// 📌 Add new doctor
-window.adminAddDoctor = async function () {
-  const name = document.getElementById('docName')?.value.trim();
-  const email = document.getElementById('docEmail')?.value.trim();
-  const phone = document.getElementById('docPhone')?.value.trim();
-  const password = document.getElementById('docPassword')?.value.trim();
-  const specialty = document.getElementById('docSpecialty')?.value.trim();
 
-  // Get selected times (checkboxes with class "availability-time")
-  const timeNodes = document.querySelectorAll('.availability-time:checked');
-  const times = Array.from(timeNodes).map(input => input.value);
 
-  const token = localStorage.getItem('token');
+import { saveDoctor } from './services/doctorServices.js';
+
+async function adminAddDoctor() {
+  const name = document.getElementById("doctorName").value.trim();
+  const specialization = document.getElementById("specialization").value;
+  const email = document.getElementById("doctorEmail").value.trim();
+  const password = document.getElementById("doctorPassword").value;
+  const phone = document.getElementById("doctorPhone").value.trim();
+
+  // get availability checkbox value
+  const checkboxes = document.querySelectorAll("input[name='availability']:checked");
+  const availability = Array.from(checkboxes).map(cb => cb.value);
+
+  const token = localStorage.getItem("token");
   if (!token) {
-    alert('You must be logged in as admin to perform this action.');
+    alert("You must be logged in as admin to perform this action.");
     return;
   }
 
-  const doctor = {
+
+
+  const doctorData = {
     name,
+    specialty: specialization,
     email,
-    phone,
     password,
-    specialty,
-    times
+    phone,
+    availableTimes: availability
   };
 
-  try {
-    const result = await saveDoctor(doctor, token);
 
+  try {
+    const result = await saveDoctor(doctorData, token);
     if (result.success) {
-      alert('Doctor added successfully!');
-      document.getElementById('addDoctorModal').classList.remove('is-active'); // Close modal
-      loadDoctorCards(); // Refresh list
+      alert(result.message || "Doctor saved successfully.");
+      document.getElementById("modal").style.display = "none";
+      loadDoctorCards();  // reload doctor cards
     } else {
-      alert(result.message || 'Failed to add doctor.');
+      alert(result.message || "Failed to save doctor.");
     }
   } catch (error) {
-    console.error('Add doctor error:', error);
-    alert('An error occurred while saving the doctor.');
+    alert("Error saving doctor. Please try again.");
+    console.error("Add doctor error:", error);
   }
-};
+}
+
+

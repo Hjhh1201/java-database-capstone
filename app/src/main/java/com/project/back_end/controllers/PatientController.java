@@ -40,12 +40,12 @@ public class PatientController {
     }
 
 
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<?> createPatient(@RequestBody Patient patient){
         int result = patientService.createPatient(patient);
 
         return switch (result) {
-            case 1 -> ResponseEntity.status(201).body(Map.of(
+            case 1 -> ResponseEntity.status(HttpStatus.OK).body(Map.of(
                     "message", "Patient added successfully",
                     "Id", patient.getId()
             ));

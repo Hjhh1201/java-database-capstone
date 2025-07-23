@@ -54,87 +54,78 @@
 */
 
 
-// doctorDashboard.js
-
 import { getAllAppointments } from "./services/appointmentRecordService.js";
 import { createPatientRow } from "./components/patientRows.js";
-import { renderContent } from "./render.js";
+import { renderContent } from "./render.js"
 
-// Global references
+
+// Global variables
 const tableBody = document.getElementById("patientTableBody");
 let selectedDate = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 const token = localStorage.getItem("token");
-let patientName = null;
+let patientName = "null";
 
-// Load appointments when the DOM is ready
-document.addEventListener("DOMContentLoaded", () => {
-  renderContent();
-  initEventListeners();
+document.getElementById("searchBar").addEventListener("input", (e) => {
+  const value = e.target.value.trim();
+  patientName = value === "" ? "null" : value;
   loadAppointments();
 });
 
-// Bind event listeners
-function initEventListeners() {
-  // Search bar
-  const searchInput = document.getElementById("searchBar");
-  if (searchInput) {
-    searchInput.addEventListener("input", () => {
-      const input = searchInput.value.trim();
-      patientName = input !== "" ? input : "null";
-      loadAppointments();
-    });
-  }
 
-  // Today button
-  const todayBtn = document.getElementById("todayButton");
-  if (todayBtn) {
-    todayBtn.addEventListener("click", () => {
-      selectedDate = new Date().toISOString().split("T")[0];
-      const datePicker = document.getElementById("datePicker");
-      if (datePicker) datePicker.value = selectedDate;
-      loadAppointments();
-    });
-  }
+document.getElementById("todayButton").addEventListener("click", () => {
+  selectedDate = new Date().toISOString().split("T")[0];
+  document.getElementById("datePicker").value = selectedDate;
+  loadAppointments();
+});
 
-  // Date picker
-  const datePicker = document.getElementById("datePicker");
-  if (datePicker) {
-    datePicker.value = selectedDate;
-    datePicker.addEventListener("change", (e) => {
-      selectedDate = e.target.value;
-      loadAppointments();
-    });
-  }
-}
 
-// Load and display appointments
+document.getElementById("datePicker").addEventListener("change", (e) => {
+  selectedDate = e.target.value;
+  loadAppointments();
+});
+
 async function loadAppointments() {
-  try {
-    const appointments = await getAllAppointments(selectedDate, patientName, token);
-    tableBody.innerHTML = "";
+    try{
 
-    if (!appointments || appointments.length === 0) {
-      const row = document.createElement("tr");
-      row.innerHTML = `<td colspan="5">No appointments found for selected date.</td>`;
-      tableBody.appendChild(row);
-      return;
+        const appointments = await getAllAppointments(selectedDate, patientName, token);
+
+        tableBody.innerHTML = "";
+
+        if (!appointments || appointments.length === 0) {
+              const tr = document.createElement("tr");
+              tr.innerHTML = `<td colspan="5">No Appointments found for today.</td>`;
+              tableBody.appendChild(tr);
+              return;
+            }
+
+
+        appointments.forEach((appointment) => {
+              const patient = {
+                id: appointment.patient.id,
+                name: appointment.patient.name,
+                phone: appointment.patient.phone,
+                email: appointment.patient.email,
+              };
+
+              const row = createPatientRow(patient, appointment.id, appointment.doctor.id);
+              tableBody.appendChild(row);
+            });
+
+    } catch (error){
+        console.error("Error loading appointments:", error);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="5">Error loading appointments. Try again later.</td>`;
+        tableBody.innerHTML = "";
+        tableBody.appendChild(tr);
+
     }
-
-    appointments.forEach((appointment) => {
-      const patient = {
-        id: appointment.id,
-        name: appointment.patientName,
-        phone: appointment.phone,
-        email: appointment.email,
-      };
-      const row = createPatientRow(patient);
-      tableBody.appendChild(row);
-    });
-  } catch (error) {
-    console.error("Failed to load appointments:", error);
-    const row = document.createElement("tr");
-    row.innerHTML = `<td colspan="5">Error loading appointments. Try again later.</td>`;
-    tableBody.appendChild(row);
-  }
 }
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  document.getElementById("datePicker").value = selectedDate;
+  loadAppointments();
+});
 
