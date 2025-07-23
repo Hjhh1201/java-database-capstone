@@ -61,6 +61,7 @@ const DOCTOR_API = API_BASE_URL + '/doctor'
 // === Function: Get All Doctors ===
 export async function getDoctors() {
   try {
+    console.log("666");
     const response = await fetch(`${DOCTOR_API}`);
     const data = await response.json();
     if(response.ok){
@@ -133,15 +134,15 @@ export async function filterDoctors(name, time, specialty) {
     const response = await fetch(`${DOCTOR_API}/filter/${name}/${time}/${specialty}`);
     if (!response.ok) {
       console.error("Filter request failed:", response.status);
-      return [];
+      return { doctors: [] };
     }
 
     const data = await response.json();
-    return data.doctors || [];
+    return { doctors: data.doctors || [] };
   } catch (error) {
     alert("Error filtering doctors. Please try again.");
     console.error("Filter error:", error);
-    return [];
+    return { doctors: [] };
   }
 }
 

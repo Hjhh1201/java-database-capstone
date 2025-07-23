@@ -71,14 +71,12 @@
     If saving fails, show an error message
 */
 
-import { openModal } from '../components/modals.js';
+import { openModal } from './components/modals.js';
 import { getDoctors, filterDoctors, saveDoctor } from './services/doctorServices.js';
 import { createDoctorCard } from './components/doctorCard.js';
 
 
-document.getElementById('addDocBtn').addEventListener('click', () => {
-  openModal('addDoctor');
-});
+
 
 document.addEventListener('DOMContentLoaded', () => {
   loadDoctorCards();
@@ -87,6 +85,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById("searchBar").addEventListener("input", filterDoctorsOnChange);
   document.getElementById("filterTime").addEventListener("change", filterDoctorsOnChange);
   document.getElementById("filterSpecialty").addEventListener("change", filterDoctorsOnChange);
+
+
 });
 
 
@@ -121,8 +121,8 @@ async function filterDoctorsOnChange() {
   const time = document.getElementById("filterTime").value;
   const specialty = document.getElementById("filterSpecialty").value;
 
-  const doctors = await filterDoctors(name, time, specialty);
-
+  
+  const { doctors } = await filterDoctors(name, time, specialty);
   const contentDiv = document.getElementById("content");
   contentDiv.innerHTML = "";
 
@@ -135,7 +135,6 @@ async function filterDoctorsOnChange() {
 
 
 
-import { saveDoctor } from './services/doctorServices.js';
 
 async function adminAddDoctor() {
   const name = document.getElementById("doctorName").value.trim();

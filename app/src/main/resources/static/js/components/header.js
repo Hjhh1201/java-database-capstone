@@ -189,12 +189,15 @@ function renderHeader() {
 function attachHeaderButtonListeners() {
   const patientLogin = document.getElementById("patientLogin");
   const patientSignup = document.getElementById("patientSignup");
-
+  const addDocBtn = document.getElementById("addDocBtn");
   if (patientLogin) {
     patientLogin.addEventListener("click", () => openModal("patientLogin"));
   }
   if (patientSignup) {
     patientSignup.addEventListener("click", () => openModal("patientSignup"));
+  }
+  if (addDocBtn) {
+    addDocBtn.addEventListener("click", () => openModal("addDoctor")); 
   }
 }
 
