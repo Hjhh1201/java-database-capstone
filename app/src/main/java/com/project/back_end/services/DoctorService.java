@@ -122,13 +122,18 @@ public class DoctorService {
 
     @Transactional
     public ResponseEntity<Map<String, String>> validateDoctor(Login login){
+        System.out.println("login email "+login.getIdentifier());
         Doctor doctor = doctorRepository.findByEmail(login.getIdentifier());
         Map<String, String> response = new HashMap<>();
+
+        System.out.println("login password "+login.getPassword());
 
         if(doctor==null){
             response.put("error", "Invalid email");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
+
+        System.out.println("doctor password "+doctor.getPassword());
 
         if(login.getPassword().equals(doctor.getPassword())){
             String token = tokenService.generateToken(login.getIdentifier());

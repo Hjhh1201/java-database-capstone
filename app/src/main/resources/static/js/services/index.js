@@ -111,10 +111,10 @@ window.adminLoginHandler = async function () {
 
 // Doctor handler
 window.doctorLoginHandler = async function () {
-  const email = document.getElementById("email").value;
+  const identifier = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
-  const doctor = { email, password };
+  const doctor = { identifier, password };
 
   try {
     const response = await fetch(DOCTOR_API, {

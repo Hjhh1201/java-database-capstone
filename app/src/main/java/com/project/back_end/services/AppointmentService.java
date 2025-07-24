@@ -1,6 +1,7 @@
 package com.project.back_end.services;
 
 import com.project.back_end.models.Appointment;
+import com.project.back_end.DTO.AppointmentDTO;
 import com.project.back_end.models.Doctor;
 import com.project.back_end.models.Patient;
 import com.project.back_end.repo.AppointmentRepository;
@@ -123,19 +124,34 @@ public class AppointmentService {
 
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.atTime(23, 59);
-        List<Appointment> appointments = appointmentRepository.findByDoctorId(doctor.getId());
+        System.out.println("Date: "+date);
 
-        if (pname != null && !pname.trim().isEmpty()) {
-            appointments = appointments.stream()
-                    .filter(app -> {
-                        Optional<Patient> patient = patientRepository.findById(app.getPatient().getId());
-                        return patient.isPresent() &&
-                                patient.get().getName().toLowerCase().contains(pname.toLowerCase());
-                    })
-                    .collect(Collectors.toList());
+        List<Appointment> appointments;
+        if(pname==null || pname.equals("null")||pname.equals("")){
+            appointments = appointmentRepository.findByDoctorIdAndAppointmentTimeBetween(doctor.getId(), startOfDay,endOfDay);
+        }
+        else{
+            appointments = appointmentRepository.findByDoctorIdAndPatient_NameContainingIgnoreCaseAndAppointmentTimeBetween(doctor.getId(), pname,startOfDay,endOfDay);
         }
 
-        result.put("appointments", appointments);
+
+        List<AppointmentDTO> appointmentDTOs = appointments.stream().map(a ->
+                new AppointmentDTO(
+                        a.getId(),
+                        a.getDoctor().getId(),
+                        a.getDoctor().getName(),
+                        a.getPatient().getId(),
+                        a.getPatient().getName(),
+                        a.getPatient().getEmail(),
+                        a.getPatient().getPhone(),
+                        a.getPatient().getAddress(),
+                        a.getAppointmentTime(),
+                        a.getStatus()
+                )
+        ).collect(Collectors.toList());
+
+        result.put("appointments", appointmentDTOs);
+        
         return result;
     }
 

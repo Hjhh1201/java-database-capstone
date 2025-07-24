@@ -56,7 +56,7 @@
 
 import { getAllAppointments } from "./services/appointmentRecordService.js";
 import { createPatientRow } from "./components/patientRows.js";
-import { renderContent } from "./render.js"
+
 
 
 // Global variables
@@ -87,7 +87,10 @@ document.getElementById("datePicker").addEventListener("change", (e) => {
 async function loadAppointments() {
     try{
 
-        const appointments = await getAllAppointments(selectedDate, patientName, token);
+        const result = await getAllAppointments(selectedDate, patientName, token);
+        const appointments = result.appointments || [];
+
+        console.log("getAllAppointments result:", appointments);
 
         tableBody.innerHTML = "";
 
@@ -101,13 +104,14 @@ async function loadAppointments() {
 
         appointments.forEach((appointment) => {
               const patient = {
-                id: appointment.patient.id,
-                name: appointment.patient.name,
-                phone: appointment.patient.phone,
-                email: appointment.patient.email,
-              };
+              id: appointment.patientId,
+              name: appointment.patientName,
+              phone: appointment.patientPhone, 
+              email: appointment.patientEmail, 
+               };
+              
 
-              const row = createPatientRow(patient, appointment.id, appointment.doctor.id);
+              const row = createPatientRow(patient, appointment.id, appointment.doctorId);
               tableBody.appendChild(row);
             });
 
