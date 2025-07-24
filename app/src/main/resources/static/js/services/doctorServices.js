@@ -110,7 +110,7 @@ export async function saveDoctor(doctor, token) {
 
     const data = await response.json();
     return {
-      success: response.ok,
+      success: true,
       message: data.message || "Doctor saved successfully"
     };
   } catch (error) {
@@ -130,6 +130,8 @@ export async function filterDoctors(name, time, specialty) {
     name = name || 'null';
     time = time || 'null';
     specialty = specialty || 'null';
+
+    console.log(name, time, specialty);
 
     const response = await fetch(`${DOCTOR_API}/filter/${name}/${time}/${specialty}`);
     if (!response.ok) {

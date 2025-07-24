@@ -86,8 +86,20 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById("filterTime").addEventListener("change", filterDoctorsOnChange);
   document.getElementById("filterSpecialty").addEventListener("change", filterDoctorsOnChange);
 
+  waitForAddDoctorButton();
 
 });
+
+function waitForAddDoctorButton() {
+  const checkExist = setInterval(() => {
+    const addBtn = document.getElementById("addDocBtn");
+    if (addBtn) {
+      addBtn.addEventListener("click", () => openModal("addDoctor"));
+      clearInterval(checkExist);
+    }
+  }, 100); // 每100ms检测一次
+}
+
 
 
 async function loadDoctorCards() {
@@ -136,7 +148,7 @@ async function filterDoctorsOnChange() {
 
 
 
-async function adminAddDoctor() {
+window.adminAddDoctor = async function () {
   const name = document.getElementById("doctorName").value.trim();
   const specialization = document.getElementById("specialization").value;
   const email = document.getElementById("doctorEmail").value.trim();
@@ -168,10 +180,17 @@ async function adminAddDoctor() {
   try {
     const result = await saveDoctor(doctorData, token);
     if (result.success) {
+      console.log("test1");
+      document.getElementById('modal').style.display = 'none';
       alert(result.message || "Doctor saved successfully.");
       document.getElementById("modal").style.display = "none";
+      
+      
+      console.log("test3");
       loadDoctorCards();  // reload doctor cards
+      console.log("test4");
     } else {
+      console.log("test0");
       alert(result.message || "Failed to save doctor.");
     }
   } catch (error) {

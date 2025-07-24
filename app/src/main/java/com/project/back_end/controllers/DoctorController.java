@@ -87,7 +87,7 @@ public class DoctorController {
             int result = doctorService.saveDoctor(doctor);
 
             return switch (result) {
-                case 1 -> ResponseEntity.status(201).body(Map.of(
+                case 1 -> ResponseEntity.status(HttpStatus.OK).body(Map.of(
                         "message", "Doctor added successfully",
                         "doctorId", doctor.getId()
                 ));
