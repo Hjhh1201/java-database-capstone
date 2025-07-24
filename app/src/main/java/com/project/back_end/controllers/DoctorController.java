@@ -194,6 +194,7 @@ public class DoctorController {
     }
 
 
+    
     @GetMapping("/filter/{name}/{time}/{speciality}")
     public ResponseEntity<?> filterDoctor(
             @PathVariable String name,

@@ -187,15 +187,7 @@ function renderHeader() {
 
 
 function attachHeaderButtonListeners() {
-  const patientLogin = document.getElementById("patientLogin");
-  const patientSignup = document.getElementById("patientSignup");
-  
-  if (patientLogin) {
-    patientLogin.addEventListener("click", () => openModal("patientLogin"));
-  }
-  if (patientSignup) {
-    patientSignup.addEventListener("click", () => openModal("patientSignup"));
-  }
+   
   
 }
 

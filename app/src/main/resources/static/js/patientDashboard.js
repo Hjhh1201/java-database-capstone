@@ -9,23 +9,31 @@ import { patientSignup, patientLogin } from './services/patientServices.js';
 
 document.addEventListener("DOMContentLoaded", () => {
   loadDoctorCards();
+  waitForLoginButton();
+  waitForSignupButton();
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("patientSignup");
-  if (btn) {
-    btn.addEventListener("click", () => openModal("patientSignup"));
-  }
-});
+function waitForLoginButton() {
+  const checkExist = setInterval(() => {
+    const loginBtn = document.getElementById("patientLogin");
+    if (loginBtn) {
+      loginBtn.addEventListener("click", () => openModal("patientLogin"));
+      clearInterval(checkExist);
+    }
+  }, 100); // 每100ms检测一次
+}
 
-document.addEventListener("DOMContentLoaded", () => {
-  const loginBtn = document.getElementById("patientLogin")
-  if (loginBtn) {
-    loginBtn.addEventListener("click", () => {
-      openModal("patientLogin")
-    })
-  }
-})
+function waitForSignupButton() {
+  const checkExist = setInterval(() => {
+    const addBtn = document.getElementById("patientSignup");
+    if (addBtn) {
+      addBtn.addEventListener("click", () => openModal("patientSignup"));
+      clearInterval(checkExist);
+    }
+  }, 100); // 每100ms检测一次
+}
+
+
 
 function loadDoctorCards() {
   getDoctors()

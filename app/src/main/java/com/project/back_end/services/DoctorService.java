@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.hibernate.Hibernate;
 
 import javax.print.Doc;
 import java.time.LocalDate;
@@ -154,22 +155,59 @@ public class DoctorService {
 
 
 
+    /*
     @Transactional
     public Map<String, Object> filterDoctorsByNameSpecilityandTime(String name, String specialty, String time) {
 
         if((name==null||name.equals("null")) && (specialty==null || specialty.equals("null"))){
+            System.out.println("test1 "+specialty+name);
             List<Doctor> doctors = doctorRepository.findAll();
 
             List<Doctor> filtered_doctors = filterDoctorByTime(doctors, time);
             return createResponse(filtered_doctors);
         }
         else if(name==null||name.equals("null")){
+            System.out.println("test2 "+specialty+name);
             return filterDoctorByTimeAndSpecility(specialty,time);
         } else if (specialty==null || specialty.equals("null")) {
             return filterDoctorByNameAndTime(name,time);
         }else{
             List<Doctor> doctors = doctorRepository.findByNameContainingIgnoreCaseAndSpecialtyIgnoreCase(name,specialty);
             List<Doctor> filtered_doctors = filterDoctorByTime(doctors, time);
+            return createResponse(filtered_doctors);
+        }
+
+
+    }*/
+
+
+    @Transactional
+    public Map<String, Object> filterDoctorsByNameSpecilityandTime(String name, String specialty, String time) {
+
+        if((name==null||name.equals("null")) && (specialty==null || specialty.equals("null"))){
+            System.out.println("test1 "+specialty+name);
+            List<Doctor> doctors = doctorRepository.findAll();
+
+            List<Doctor> filtered_doctors = filterDoctorByTime(doctors, time);
+            filtered_doctors.forEach(doctor -> Hibernate.initialize(doctor.getAvailableTimes()));
+            return createResponse(filtered_doctors);
+        }
+        else if(name==null||name.equals("null")){
+            System.out.println("test2 "+specialty+name);
+            List<Doctor> doctors = doctorRepository.findBySpecialtyIgnoreCase(specialty);
+            List<Doctor> filtered_doctors = filterDoctorByTime(doctors, time);
+            filtered_doctors.forEach(doctor -> Hibernate.initialize(doctor.getAvailableTimes()));
+            return createResponse(filtered_doctors);
+        } else if (specialty==null || specialty.equals("null")) {
+            List<Doctor> doctors = doctorRepository.findByNameLike(name);
+            List<Doctor> filtered_doctors = filterDoctorByTime(doctors, time);
+            filtered_doctors.forEach(doctor -> Hibernate.initialize(doctor.getAvailableTimes()));
+            return createResponse(filtered_doctors);
+            
+        }else{
+            List<Doctor> doctors = doctorRepository.findByNameContainingIgnoreCaseAndSpecialtyIgnoreCase(name,specialty);
+            List<Doctor> filtered_doctors = filterDoctorByTime(doctors, time);
+            filtered_doctors.forEach(doctor -> Hibernate.initialize(doctor.getAvailableTimes()));
             return createResponse(filtered_doctors);
         }
 
