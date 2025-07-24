@@ -126,7 +126,8 @@ public class DoctorService {
         Doctor doctor = doctorRepository.findByEmail(login.getIdentifier());
         Map<String, String> response = new HashMap<>();
 
-        System.out.println("login password "+login.getPassword());
+        
+        System.out.println("Login password: "+login.getPassword());
 
         if(doctor==null){
             response.put("error", "Invalid email");
