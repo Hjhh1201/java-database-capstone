@@ -156,9 +156,24 @@ public class DoctorService {
 
     @Transactional
     public Map<String, Object> filterDoctorsByNameSpecilityandTime(String name, String specialty, String time) {
-        List<Doctor> doctors = doctorRepository.findByNameContainingIgnoreCaseAndSpecialtyIgnoreCase(name, specialty);
-        List<Doctor> filtered_doctors = filterDoctorByTime(doctors, time);
-        return createResponse(filtered_doctors);
+
+        if((name==null||name.equals("null")) && (specialty==null || specialty.equals("null"))){
+            List<Doctor> doctors = doctorRepository.findAll();
+
+            List<Doctor> filtered_doctors = filterDoctorByTime(doctors, time);
+            return createResponse(filtered_doctors);
+        }
+        else if(name==null||name.equals("null")){
+            return filterDoctorByTimeAndSpecility(specialty,time);
+        } else if (specialty==null || specialty.equals("null")) {
+            return filterDoctorByNameAndTime(name,time);
+        }else{
+            List<Doctor> doctors = doctorRepository.findByNameContainingIgnoreCaseAndSpecialtyIgnoreCase(name,specialty);
+            List<Doctor> filtered_doctors = filterDoctorByTime(doctors, time);
+            return createResponse(filtered_doctors);
+        }
+
+
     }
 
 
