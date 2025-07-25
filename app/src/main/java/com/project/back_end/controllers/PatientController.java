@@ -61,7 +61,11 @@ public class PatientController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(Login login){
+    public ResponseEntity<?> login(@RequestBody Login login){
+        System.out.println("login password"+login.getPassword());
+        System.out.println("login email"+login.getIdentifier());
+
+        
         return service.validatePatientLogin(login);
     }
 
@@ -70,6 +74,19 @@ public class PatientController {
     public ResponseEntity<?> getPatientAppointment(@PathVariable Long id, @PathVariable String token){
         Map<String, String> response = new HashMap<>();
         if(!service.validateToken(token,"patient")){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        return patientService.getPatientAppointment(id, token);
+    }
+
+    @GetMapping("/{id}/{user}/{token}")
+    public ResponseEntity<?> getPatientAppointment(@PathVariable Long id, @PathVariable String user, @PathVariable String token){
+        Map<String, String> response = new HashMap<>();
+        if(!service.validateToken(token,"patient")){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+        if(user.equals("doctor")){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
 

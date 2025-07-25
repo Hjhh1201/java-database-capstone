@@ -109,20 +109,29 @@ public class PatientService {
     }
 
 
+
     public ResponseEntity<Map<String, Object>> filterByDoctorAndCondition(String condition, String name, long patientId){
         Map<String, Object> response = new HashMap<>();
         List<Appointment> appointments;
-
-        if ("past".equalsIgnoreCase(condition)) {
+        if(name==null||name.equals("null")||name.equals("")){
+            if ("past".equalsIgnoreCase(condition)) {
+                appointments = appointmentRepository.filterByPatientIdAndStatus(patientId,1);
+            } else if ("future".equalsIgnoreCase(condition) || "upcoming".equalsIgnoreCase(condition)) {
+                appointments = appointmentRepository.filterByPatientIdAndStatus(patientId,0);
+            } else {
+                appointments = appointmentRepository.filterByPatientId(patientId);
+            }
+        }else{
+            if ("past".equalsIgnoreCase(condition)) {
             appointments = appointmentRepository.filterByDoctorNameAndPatientIdAndStatus(name,patientId,1);
         } else if ("future".equalsIgnoreCase(condition) || "upcoming".equalsIgnoreCase(condition)) {
             appointments = appointmentRepository.filterByDoctorNameAndPatientIdAndStatus(name,patientId,0);
         } else {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "error", "Invalid condition. Use 'past' or 'future'",
-                    "valid_conditions", List.of("past", "future")
-            ));
+            appointments = appointmentRepository.filterByDoctorNameAndPatientId(name,patientId);
         }
+        }
+
+        
 
 
         List<AppointmentDTO> appointmentDTOS = appointments.stream()
@@ -146,6 +155,7 @@ public class PatientService {
             }
 
             return ResponseEntity.ok(Map.of(
+                    "patient", patient,
                     "id", patient.getId(),
                     "name", patient.getName(),
                     "email", patient.getEmail(),

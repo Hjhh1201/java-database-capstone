@@ -155,6 +155,12 @@ public class Service {
 
         Patient patient = patientRepository.findByEmail(login.getIdentifier());
 
+        if(patient!=null){
+            System.out.println("patinet password"+patient.getPassword());
+        }
+        
+        System.out.println("login password"+login.getPassword());
+
         if(patient!=null && patient.getPassword().equals(login.getPassword())){
             String token = tokenService.generateToken(login.getIdentifier());
             response.put("token",token);

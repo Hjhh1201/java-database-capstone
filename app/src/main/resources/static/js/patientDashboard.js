@@ -114,11 +114,11 @@ window.signupPatient = async function () {
 
 window.loginPatient = async function () {
   try {
-    const email = document.getElementById("email").value;
+    const identifier = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
     const data = {
-      email,
+      identifier,
       password
     }
     console.log("loginPatient :: ", data)

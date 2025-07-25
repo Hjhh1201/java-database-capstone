@@ -131,6 +131,20 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     @Query("UPDATE Appointment a SET a.status = :status WHERE a.id = :id")
     void updateStatus(@Param("status") int status, @Param("id") Long id);
 
+
+
+    @Query("SELECT a FROM Appointment a " +
+            "JOIN a.doctor d " +
+            "WHERE a.patient.id = :patientId")
+    List<Appointment> filterByPatientId(@Param("patientId") Long patientId);
+
+
+    @Query("SELECT a FROM Appointment a " +
+            "JOIN a.doctor d " +
+            "WHERE a.patient.id = :patientId AND a.status = :status")
+    List<Appointment> filterByPatientIdAndStatus(@Param("patientId") Long patientId,
+                                                 @Param("status") int status);
+
 // 3. @Modifying and @Transactional annotations:
 //    - The @Modifying annotation is used to indicate that the method performs a modification operation (like DELETE or UPDATE).
 //    - The @Transactional annotation ensures that the modification is done within a transaction, meaning that if any exception occurs, the changes will be rolled back.
