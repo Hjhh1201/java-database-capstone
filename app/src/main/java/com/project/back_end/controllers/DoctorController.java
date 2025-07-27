@@ -101,6 +101,7 @@ public class DoctorController {
             };
 
         } catch (Exception e) {
+            System.out.println("add doctor fail");
             return ResponseEntity.internalServerError().body(Map.of(
                     "error", "Failed to fetch availability",
                     "details", e.getMessage()

@@ -72,15 +72,21 @@ public class DoctorService {
 
     @Transactional
     public int saveDoctor(Doctor doctor){
+        System.out.println("doctor email: "+doctor.getEmail());
+        
         try{
-            if(doctorRepository.findByEmail(doctor.getEmail())!=null){
+            if(doctorRepository.findByEmail(doctor.getEmail())==null){
+                System.out.println("save doctor");
+                doctorRepository.save(doctor);
+                return 1;
+            }else{
                 return -1;
             }
 
-            doctorRepository.save(doctor);
-            return 1;
+            
 
         } catch (Exception e) {
+            e.printStackTrace();
             return 0;
         }
     }

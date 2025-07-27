@@ -1,3 +1,9 @@
+use cms;
+
+INSERT INTO admin (username, password)
+VALUES ('admin', 'admin@1234');
+
+
 INSERT INTO doctor (email, name, password, phone, specialty) VALUES
 ('dr.adams@example.com', 'Dr. Emily Adams', 'pass12345', '555-101-2020', 'Cardiologist'),
 ('dr.johnson@example.com', 'Dr. Mark Johnson', 'secure4567', '555-202-3030', 'Neurologist'),
@@ -54,7 +60,6 @@ INSERT INTO doctor_available_times (doctor_id, available_times) VALUES
 (25, '09:00-10:00'), (25, '10:00-11:00'), (25, '14:00-15:00'), (25, '15:00-16:00');
 
 
-
 INSERT INTO patient (address, email, name, password, phone) VALUES
 ('101 Oak St, Cityville', 'jane.doe@example.com', 'Jane Doe', 'passJane1', '888-111-1111'),
 ('202 Maple Rd, Townsville', 'john.smith@example.com', 'John Smith', 'smithSecure', '888-222-2222'),
@@ -81,7 +86,6 @@ INSERT INTO patient (address, email, name, password, phone) VALUES
 ('124 Dogwood Dr, Summit', 'ivy.j@example.com', 'Ivy Jackson', 'ivyIvy', '890-333-3333'),
 ('125 Juniper Ct, Greenwood', 'leo.m@example.com', 'Leo Martin', 'leopass', '890-444-4444'),
 ('126 Olive Rd, Ashville', 'ella.moore@example.com', 'Ella Moore', 'ellamoore', '890-555-5555');
-
 
 
 INSERT INTO appointment (appointment_time, status, doctor_id, patient_id) VALUES
@@ -215,8 +219,4 @@ INSERT INTO appointment (appointment_time, status, doctor_id, patient_id) VALUES
 ('2025-04-05 14:00:00.000000', 1, 4, 5),
 ('2025-04-09 11:00:00.000000', 1, 4, 6),
 ('2025-04-10 13:00:00.000000', 1, 4, 7);
-
-
-INSERT INTO admin (username, password)
-VALUES ('admin', 'admin@1234');
 

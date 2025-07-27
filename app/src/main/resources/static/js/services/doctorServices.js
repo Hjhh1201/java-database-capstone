@@ -110,7 +110,7 @@ export async function saveDoctor(doctor, token) {
 
     const data = await response.json();
     return {
-      success: true,
+      success: response.ok,
       message: data.message || "Doctor saved successfully"
     };
   } catch (error) {

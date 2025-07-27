@@ -191,10 +191,12 @@ window.adminAddDoctor = async function () {
       console.log("test4");
     } else {
       console.log("test0");
-      alert(result.message || "Failed to save doctor.");
+      alert("Failed to save doctor.");
+      document.getElementById("modal").style.display = "none";
     }
   } catch (error) {
     alert("Error saving doctor. Please try again.");
+    document.getElementById("modal").style.display = "none";
     console.error("Add doctor error:", error);
   }
 }
